@@ -1,5 +1,3 @@
-//= require ../lib/_jquery
-
 /*
 Copyright 2008-2013 Concur Technologies, Inc.
 
@@ -15,14 +13,13 @@ WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 License for the specific language governing permissions and limitations
 under the License.
 */
-;(function () {
+(function (global) {
   'use strict';
 
   var languages = [];
 
-  window.setupLanguages = setupLanguages;
-  window.activateLanguage = activateLanguage;
-  window.getLanguageFromQueryString = getLanguageFromQueryString;
+  global.setupLanguages = setupLanguages;
+  global.activateLanguage = activateLanguage;
 
   function activateLanguage(language) {
     if (!language) return;
@@ -31,13 +28,11 @@ under the License.
     $(".lang-selector a").removeClass('active');
     $(".lang-selector a[data-language-name='" + language + "']").addClass('active');
     for (var i=0; i < languages.length; i++) {
-      $(".highlight.tab-" + languages[i]).hide();
-      $(".lang-specific." + languages[i]).hide();
+      $(".highlight." + languages[i]).hide();
     }
-    $(".highlight.tab-" + language).show();
-    $(".lang-specific." + language).show();
+    $(".highlight." + language).show();
 
-    window.recacheHeights();
+    global.toc.calculateHeights();
 
     // scroll to the new location of the position
     if ($(window.location.hash).get(0)) {
@@ -98,7 +93,7 @@ under the License.
   // gets the language set in the query string
   function getLanguageFromQueryString() {
     if (location.search.length >= 1) {
-      var language = parseURL(location.search).language;
+      var language = parseURL(location.search).language
       if (language) {
         return language;
       } else if (jQuery.inArray(location.search.substr(1), languages) != -1) {
@@ -160,5 +155,8 @@ under the License.
       activateLanguage(language);
       return false;
     });
+    window.onpopstate = function() {
+      activateLanguage(getLanguageFromQueryString());
+    };
   });
-})();
+})(window);
